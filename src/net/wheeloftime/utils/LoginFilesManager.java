@@ -24,7 +24,7 @@ public class LoginFilesManager {
 	/**
 	 * Path where offences are stored.
 	 */
-	private static final String OFFENCES = "offences.ser";
+	private static final String OFFENCES = "./data/offences.ser";
 	/**
 	 * Path where display names are stored.
 	 */

@@ -13,7 +13,7 @@ elveron-rs3.iml
 client.jar
 *.xml
 data/cache/
-data/bacups/
+data/backups/
 .metadata/.log
 .metadata/.plugins/org.eclipse.m2e.logback.configuration/0.log
 .metadata/.plugins/org.eclipse.pde.core/.cache/clean-cache.properties
@@ -25,10 +25,6 @@ src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreation
 src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreationMagic.java
 src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreationManagerD.java
 src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreationRange.java
-data/accounts_data_miles.data
-data/accounts_data_Nathan.data
-data/accounts_data.data
-data/accounts_data_desktop.data
 Thread Design.txt
 ttooodddooo.txt
 displayNames.ser

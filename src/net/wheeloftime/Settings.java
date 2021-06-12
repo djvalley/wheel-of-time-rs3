@@ -16,7 +16,7 @@ public final class Settings {
 	private static boolean hostName() {
 		try {
 			switch (InetAddress.getLocalHost().getHostName()) {
-			case "DAVID-PC":
+			case "nocturne":
 				return true;
 			}
 		} catch (UnknownHostException e) {

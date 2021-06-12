@@ -1607,7 +1607,7 @@ public class Player extends Entity {
 			DateFormat dateFormat2 = new SimpleDateFormat("MM/dd/yy HH:mm:ss");
 			Calendar cal2 = Calendar.getInstance();
 			final String FILE_PATH = Settings.getDropboxLocation()
-					+ "logs/logins/";
+					+ "logins/";
 			BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH
 					+ getUsername() + ".txt", true));
 			writer.write("[" + dateFormat2.format(cal2.getTime()) + "] IP: "
