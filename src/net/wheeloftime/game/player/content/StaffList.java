@@ -13,9 +13,9 @@ public class StaffList {
 
 	private enum Staff {
 
-		OWNER("David", "Owner", "Straken"),
+		OWNER("David", "Owner", "straken"),
 
-		CO_OWNER("Shawn", "Co-Owner", "Shawn");
+		CO_OWNER("Shawn", "Co-Owner", "shawn");
 //
 //		ADMINISTRATOR1("Klein", "Administrator", "klein_curse"),
 //
