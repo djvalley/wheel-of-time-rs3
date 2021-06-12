@@ -1,0 +1,1 @@
+"C:\Program Files\Java\jdk1.8.0_291\bin\java" -d64 -Xss50m -cp bin:lib/* net.nocturne.LoginEngine true true
