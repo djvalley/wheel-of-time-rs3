@@ -20,11 +20,11 @@ data/bacups/
 .metadata/.plugins/org.eclipse.rse.core/.log
 .metadata/.plugins/org.eclipse.rse.ui/.log
 grandExchangeOffers.ser
-src/net/nocturne/game/player/content/seasonalEvents/.gitignore
-src/net/nocturne/game/player/dialogues/impl/stealingCreation/StealingCreationClay.java
-src/net/nocturne/game/player/dialogues/impl/stealingCreation/StealingCreationMagic.java
-src/net/nocturne/game/player/dialogues/impl/stealingCreation/StealingCreationManagerD.java
-src/net/nocturne/game/player/dialogues/impl/stealingCreation/StealingCreationRange.java
+src/net/wheeloftime/game/player/content/seasonalEvents/.gitignore
+src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreationClay.java
+src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreationMagic.java
+src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreationManagerD.java
+src/net/wheeloftime/game/player/dialogues/impl/stealingCreation/StealingCreationRange.java
 data/accounts_data_miles.data
 data/accounts_data_Nathan.data
 data/accounts_data.data
