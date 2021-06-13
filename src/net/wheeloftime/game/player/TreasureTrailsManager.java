@@ -1,15 +1,7 @@
 package net.wheeloftime.game.player;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import net.wheeloftime.cache.loaders.NPCDefinitions;
-import net.wheeloftime.game.ForceTalk;
-import net.wheeloftime.game.Graphics;
-import net.wheeloftime.game.World;
-import net.wheeloftime.game.WorldObject;
-import net.wheeloftime.game.WorldTile;
+import net.wheeloftime.game.*;
 import net.wheeloftime.game.item.Item;
 import net.wheeloftime.game.item.ItemIdentifiers;
 import net.wheeloftime.game.npc.NPC;
@@ -22,32 +14,638 @@ import net.wheeloftime.game.tasks.WorldTask;
 import net.wheeloftime.game.tasks.WorldTasksManager;
 import net.wheeloftime.utils.Utils;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 public class TreasureTrailsManager implements Serializable {
-
-    private static final long serialVersionUID = 9153704778933553926L;
-
-    private static final int EASY = 0, MEDIUM = 1, HARD = 2, ELITE = 3;
-    private static final int SOURCE_DIG = 0, SOURCE_EMOTE = 1, SOURCE_NPC = 2,
-            SOURCE_PUZZLENPC = 3, SOURCE_OBJECT = 4;
 
     public static final int[] CLUE_SCROLLS = new int[]{2677, 2801, 2722,
             19043};
     public static final int[] SCROLL_BOXES = new int[]{19005, 19065, 18937,
             19041};
     public static final int[] PUZZLES = new int[]{2798, 3565, 3576, 19042};
+    public static final String[] UGIS_QUOTES = new String[]{
+            "I saw bo once, he gave me pokemon.",
+            "Once, I was a poor man, but then I found a party hat.",
+            "There were three goblins in a bar, which one left first?",
+            "Would you like to buy a pewter spoon?",
+            "In the end, only the three-legged survive.",
+            "I heard that the tall man fears only strong winds.",
+            "In Canifis the men are known for eating much spam.",
+            "I am the egg man, are you one of the egg men?",
+            "The sudden appearance of a deaf squirrel is most puzzling, Comrade.",
+            "I believe that it is very rainy in Varrock.",
+            "The slowest of fishermen catch the swiftest of fish.",
+            "It is quite easy being green.",
+            "Don't forget to find the jade monkey.",};
+    public static final String UGI_BADREQS = "I do not believe we have any business, Comrade";
+    private static final long serialVersionUID = 9153704778933553926L;
+    private static final int EASY = 0, MEDIUM = 1, HARD = 2, ELITE = 3;
+    private static final int SOURCE_DIG = 0, SOURCE_EMOTE = 1, SOURCE_NPC = 2,
+            SOURCE_PUZZLENPC = 3, SOURCE_OBJECT = 4;
     private static final int[] BASE_PIECES = {2749, 3619, 3643, 18841};
     private static final String[] LEVEL = {"Easy", "Medium", "Hard", "Elite"};
-
     private static final int PUZZLE_SIZE = 25;
+    private static final int COORDINATE = 0, EMOTE = 1, MAP = 2, SIMPLE = 3,
+            ANAGRAM = 5, UNUSED = -1;
+    private static final int TILE = 0, OBJECT = 1, NPC = 2;
+    private static final int NORTH = 0, SOUTH = 1, WEST = 2, EAST = 3;
+    private static final Item[] OVERALL_REWARDS = {
+            new Item(995, 20000) // coins
+            ,
+            new Item(3827),
+            new Item(3828),
+            new Item(3829),
+            new Item(3830) // saradomin
+            // pages
+            ,
+            new Item(3831),
+            new Item(3832),
+            new Item(3833),
+            new Item(3834) // zamorak
+            // pages
+            ,
+            new Item(3835),
+            new Item(3836),
+            new Item(3837),
+            new Item(3838) // guthix
+            // pages
+            ,
+            new Item(19600),
+            new Item(19601),
+            new Item(19602),
+            new Item(19603) // bandos
+            // pages
+            ,
+            new Item(19604),
+            new Item(19605),
+            new Item(19606),
+            new Item(19607) // armadyl
+            // pages
+            ,
+            new Item(19608),
+            new Item(19609),
+            new Item(19610),
+            new Item(19611) // ancient
+            // pages
+            ,
+            new Item(10476, 20) // purple sweets
+            , new Item(556, 100),
+            new Item(554, 100),
+            new Item(557, 100),
+            new Item(563, 100) // runes
+            ,
+            new Item(1381),
+            new Item(1383),
+            new Item(1385),
+            new Item(1386) // elemental
+            // staffs
+            , new Item(1675), new Item(1677),
+            new Item(1679),
+            new Item(1681),
+            new Item(1683) // craftable
+            // amulets
+            ,
+            new Item(18757) // court summon
+            ,
+            new Item(19467, 20) // biscuits
+            , new Item(19475), new Item(19476), new Item(19477),
+            new Item(19478), new Item(19479), new Item(19480) // teleport
+            // scrolls
+            , new Item(19152, 20), new Item(19157, 20), new Item(19162, 20) // god
+            // arrows
+            , new Item(19622), new Item(19621, 20) // meerkat pouches and fetch
+            // casket scroll
+            , new Item(10280), new Item(10282), new Item(10284) // composite
+            // bows
+
+    };
+    private static final Item[] EASY_NORMAL_REWARDS = {
+            // black weapons
+            new Item(869, 100), new Item(1217), new Item(1283), new Item(1297),
+            new Item(1313), new Item(1327),
+            new Item(1341),
+            new Item(1361),
+            new Item(1367),
+            new Item(1426)
+            // black armor
+            , new Item(1077), new Item(1089), new Item(1107), new Item(1125),
+            new Item(1151), new Item(1165), new Item(1179),
+            new Item(1195),
+            new Item(4821, 100) // black nails
+            ,
+            new Item(8779, 100) // oak planks
+            , new Item(849),
+            new Item(857) // willow + yew shortbow
+            , new Item(1440),
+            new Item(1442) // talismans
+            ,
+            new Item(333),
+            new Item(329) // trout + salmon
+            ,
+            new Item(1169) // coif
+            // leather armor
+            , new Item(1167), new Item(1059), new Item(1061), new Item(1063),
+            new Item(1095), new Item(1129), new Item(1131), new Item(1269) // steel
+            // pickaxe
+    };
+    private static final Item[] EASY_RARE_REWARDS = {
+            new Item(2583),
+            new Item(2585),
+            new Item(2587),
+            new Item(2589),
+            new Item(3472) // Trimmed black armour
+            ,
+            new Item(2591),
+            new Item(2593),
+            new Item(2595),
+            new Item(2597),
+            new Item(3473) // Gold-trimmed black armour
+            ,
+            new Item(2633),
+            new Item(2635),
+            new Item(2637) // berets
+            ,
+            new Item(2631) // Highwayman mask
+            ,
+            new Item(7388),
+            new Item(7392),
+            new Item(7396) // Trimmed wizard robes
+            ,
+            new Item(7386),
+            new Item(7390),
+            new Item(7394) // Gold-trimmed wizard robes
+            ,
+            new Item(7364),
+            new Item(7368) // Trimmed studded leather armour
+            ,
+            new Item(7362),
+            new Item(7366) // Gold-trimmed studded leather armour
+            // Black heraldic armour (h1 to h5)
+            , new Item(7332), new Item(7338), new Item(7344), new Item(7350),
+            new Item(7356), new Item(10306), new Item(10308), new Item(10310),
+            new Item(10312), new Item(10314), new Item(19167), new Item(19169),
+            new Item(19171), new Item(19188), new Item(19190),
+            new Item(19192),
+            new Item(19209),
+            new Item(19211),
+            new Item(19213),
+            new Item(19230),
+            new Item(19232),
+            new Item(19234),
+            new Item(19251),
+            new Item(19253),
+            new Item(19255),
+            new Item(10404),
+            new Item(10406),
+            new Item(10424),
+            new Item(10426) // Red elegant costumes
+            ,
+            new Item(10408),
+            new Item(10410),
+            new Item(10428),
+            new Item(10430) // Blue elegant costumes
+            ,
+            new Item(10412),
+            new Item(10414),
+            new Item(10432),
+            new Item(10434) // Green elegant costumes
+            ,
+            new Item(10316),
+            new Item(10318),
+            new Item(10320),
+            new Item(10322),
+            new Item(10324) // Bob the cat shirts
+            ,
+            new Item(10392),
+            new Item(10394),
+            new Item(10396),
+            new Item(10398) // Emote enchanters
+            ,
+            new Item(10366) // aumlet of magic t
+            // Vestment robes (Saradomin, Guthix, Zamorak)
+            , new Item(10458), new Item(10460), new Item(10462),
+            new Item(10464), new Item(10466), new Item(10468), new Item(13081),
+            new Item(13083, 500) // Black crossbow + bolts
+            , new Item(13095) // black cane
+            , new Item(13105) // spiked helmet
+    };
+    private static final Item[] MEDIUM_NORMAL_REWARDS = {
+            // adamant weapons
+            new Item(803, 100), new Item(810, 100), new Item(829, 100),
+            new Item(867, 100), new Item(1211), new Item(1245), new Item(1271),
+            new Item(1287), new Item(1301), new Item(1317), new Item(1331),
+            new Item(1345), new Item(1357),
+            new Item(1371),
+            new Item(1430),
+            new Item(9183)
+            // adamant armour
+            , new Item(1073), new Item(1091), new Item(1111), new Item(1123),
+            new Item(1145), new Item(1161), new Item(1183), new Item(1199),
+            new Item(4823, 100) // adamantite
+            // nails
+            , new Item(1393), new Item(1395), new Item(1397), new Item(1399) // battlestaves
+            , new Item(1065), new Item(1099), new Item(1135) // green dhide
+            , new Item(857), new Item(8781, 100) // teak planks
+            , new Item(373), new Item(379) // swordfish + lobs
+    };
+    private static final Item[] MEDIUM_RARE_REWARDS = {
+            new Item(2599),
+            new Item(2601),
+            new Item(2603),
+            new Item(2605),
+            new Item(3474) // Trimmed adamant armour
+            ,
+            new Item(2607),
+            new Item(2609),
+            new Item(2611),
+            new Item(2613),
+            new Item(3475) // Gold-trimmed adamant armour
+            ,
+            new Item(2577),
+            new Item(2579) // ranger + wizard boots
+            ,
+            new Item(2645),
+            new Item(2647),
+            new Item(2649) // headbands
+            ,
+            new Item(7319),
+            new Item(7321),
+            new Item(7323),
+            new Item(7325),
+            new Item(7327) // boaters
+            ,
+            new Item(7372),
+            new Item(7380) // Trimmed green dragonhide armour
+            ,
+            new Item(7370),
+            new Item(7378) // gold-trimmed green dragonhide armour
+            // Adamant heraldic armour (h1 to h5)
+            , new Item(7334), new Item(7340), new Item(7346), new Item(7352),
+            new Item(7358), new Item(10296), new Item(10298), new Item(10300),
+            new Item(10302), new Item(10304), new Item(19173), new Item(19175),
+            new Item(19177), new Item(19194), new Item(19196), new Item(19198),
+            new Item(19215),
+            new Item(19217),
+            new Item(19219),
+            new Item(19236),
+            new Item(19238),
+            new Item(19240),
+            new Item(10400),
+            new Item(10402),
+            new Item(10420),
+            new Item(10422) // black + white elegant costume
+            ,
+            new Item(10416),
+            new Item(10418),
+            new Item(10436),
+            new Item(10438) // purple
+            // elegant
+            // costume
+            ,
+            new Item(10364) // amulet of str t
+            , new Item(10446),
+            new Item(10448),
+            new Item(10450) // gods cloack
+            ,
+            new Item(10452),
+            new Item(10454),
+            new Item(10456) // gods mitre
+            ,
+            new Item(19380),
+            new Item(19382),
+            new Item(19384),
+            new Item(19386),
+            new Item(19388),
+            new Item(19390) // Vestment
+            // robes
+            // (Armadyl,
+            // Bandos,
+            // Zaros,
+            // Ancient)
+            , new Item(13107), new Item(13109), new Item(13111),
+            new Item(13113), new Item(13115) // animal
+            // masks
+            , new Item(13097) // adamant cane
+            , new Item(13103) // pith helmet
+
+    };
+    private static final Item[] HARD_NORMAL_REWARDS = {
+            // rune weapons
+            new Item(805, 100), new Item(811, 100), new Item(830, 100),
+            new Item(868, 100), new Item(1213), new Item(1247), new Item(1275),
+            new Item(1289), new Item(1303), new Item(1319),
+            new Item(1333),
+            new Item(1347),
+            new Item(1359),
+            new Item(1373),
+            new Item(1432),
+            new Item(9185)
+            // rune armor
+            , new Item(1079), new Item(1093), new Item(1113), new Item(1127),
+            new Item(1147),
+            new Item(1163),
+            new Item(1185),
+            new Item(1201),
+            new Item(4824, 100) // rune nails
+            ,
+            new Item(9144, 100) // runite bolts
+            , new Item(2491), new Item(2497), new Item(2503), new Item(839),
+            new Item(845), new Item(847), new Item(851), new Item(855),
+            new Item(859) // longbows
+            , new Item(8783, 100) // mahogany planks
+            , new Item(379), new Item(385)};
+    private static final Item[] HARD_RARE_REWARDS = {
+            new Item(2623),
+            new Item(2625),
+            new Item(2627),
+            new Item(2629),
+            new Item(3477) // Trimmed rune armour
+            ,
+            new Item(2615),
+            new Item(2617),
+            new Item(2619),
+            new Item(2621),
+            new Item(3476) // Gold-trimmed rune armour
+            ,
+            new Item(2661),
+            new Item(2663),
+            new Item(2665),
+            new Item(2667),
+            new Item(3479) // Saradomin rune armour
+            ,
+            new Item(2669),
+            new Item(2671),
+            new Item(2673),
+            new Item(2675),
+            new Item(3480) // Guthix rune armour
+            ,
+            new Item(2653),
+            new Item(2655),
+            new Item(2657),
+            new Item(2659),
+            new Item(3478) // Zamorak rune armour
+            ,
+            new Item(3481),
+            new Item(3483),
+            new Item(3485),
+            new Item(3486),
+            new Item(3488) // Gilded armour
+            ,
+            new Item(7376),
+            new Item(7384) // Trimmed blue dragonhide armour
+            ,
+            new Item(7374),
+            new Item(7382) // Gold-trimmed blue dragonhide armour
+            ,
+            new Item(8950),
+            new Item(2581) // pirate + robin hood hat
+            ,
+            new Item(7398),
+            new Item(7399),
+            new Item(73400) // enchanted robes
+            ,
+            new Item(2639),
+            new Item(2641),
+            new Item(2643) // cavalier
+            // Rune heraldic armour (h1 to h5)
+            ,
+            new Item(7336),
+            new Item(7342),
+            new Item(7348),
+            new Item(7354),
+            new Item(7360),
+            new Item(10286),
+            new Item(10288),
+            new Item(10290),
+            new Item(10292),
+            new Item(10294),
+            new Item(19179),
+            new Item(19182),
+            new Item(19185),
+            new Item(19200),
+            new Item(19203),
+            new Item(19206),
+            new Item(19221),
+            new Item(19224),
+            new Item(19227),
+            new Item(19242),
+            new Item(19245),
+            new Item(19248),
+            new Item(19263),
+            new Item(19266),
+            new Item(19269),
+            new Item(10346),
+            new Item(10348),
+            new Item(10350),
+            new Item(10352) // Third-age
+            // warrior
+            // armour
+            ,
+            new Item(10338),
+            new Item(10340),
+            new Item(10342),
+            new Item(10344) // Third-age
+            // mage
+            // armour
+            ,
+            new Item(10330),
+            new Item(10332),
+            new Item(10334),
+            new Item(10336) // Third-age
+            // ranger
+            // armour
+            ,
+            new Item(10362) // amulet of glory (t)
+            ,
+            new Item(10470),
+            new Item(10472),
+            new Item(10474) // god stoles
+            ,
+            new Item(10440),
+            new Item(10442),
+            new Item(10444) // god croziers
+            ,
+            new Item(19368),
+            new Item(19370),
+            new Item(19372) // god cloaks
+            ,
+            new Item(19374),
+            new Item(19378),
+            new Item(19372) // god mitres
+            ,
+            new Item(10368),
+            new Item(10370),
+            new Item(10372),
+            new Item(10374) // Blessed
+            // d'hide
+            // armour
+            // (Zamorak)
+            ,
+            new Item(10384),
+            new Item(10386),
+            new Item(10388),
+            new Item(10390) // Blessed
+            // d'hide
+            // armour
+            // (Saradomin)
+            ,
+            new Item(10376),
+            new Item(10378),
+            new Item(10380),
+            new Item(10382) // Blessed
+            // d'hide
+            // armour
+            // (Guthix)
+            , new Item(19272), new Item(19275), new Item(19278),
+            new Item(19281), new Item(19284), new Item(19287) // animal
+            // masks
+            , new Item(13099) // Rune cane
+            , new Item(13101) // Top hat
+    };
+    private static final Item[] ELITE_NORMAL_REWARDS = {new Item(1305),
+            new Item(1215) // dragon
+            // equipment
+            , new Item(5315), new Item(5316) // highend seeds
+            , new Item(3024), new Item(2452) // antifire
+            , new Item(989) // crystal key
+            , new Item(9194, 100) // onyx bolt type
+            , new Item(1704) // amulet of glory
+    };
+    private static final Item[] ELITE_RARE_REWARDS = {
+            new Item(19308),
+            new Item(19311),
+            new Item(19314),
+            new Item(19317),
+            new Item(19320) // Third-age druidic equipment
+            ,
+            new Item(19413),
+            new Item(19416),
+            new Item(19419),
+            new Item(19422),
+            new Item(19425) // Armadyl rune armour
+            ,
+            new Item(19398),
+            new Item(19401),
+            new Item(19404),
+            new Item(19407),
+            new Item(19410) // Ancient rune armour
+            ,
+            new Item(19428),
+            new Item(19431),
+            new Item(19434),
+            new Item(19437),
+            new Item(19440) // Bandos rune armour
+            ,
+            new Item(19443),
+            new Item(19445),
+            new Item(19447),
+            new Item(19449) // ancient d'hide
+            ,
+            new Item(19451),
+            new Item(19453),
+            new Item(19455),
+            new Item(19457) // bandos d'hide
+            ,
+            new Item(19459),
+            new Item(19461),
+            new Item(19463),
+            new Item(19465) // armadyl d'hide
+            ,
+            new Item(19392),
+            new Item(19394),
+            new Item(19396) // god stoles
+            ,
+            new Item(19362),
+            new Item(19364),
+            new Item(19366) // god croziers
+            // kits
+            ,
+            new Item(25312),
+            new Item(25314),
+            new Item(19333),
+            new Item(19346),
+            new Item(19348),
+            new Item(19350),
+            new Item(19352),
+            new Item(19354),
+            new Item(19356),
+            new Item(19358),
+            new Item(19360),
+            new Item(19143),
+            new Item(19146),
+            new Item(19149) // god bows
+            ,
+            new Item(19323),
+            new Item(19325),
+            new Item(19327),
+            new Item(19329),
+            new Item(19331) // animal
+            // staves
+            ,
+            new Item(19290),
+            new Item(19293),
+            new Item(19296),
+            new Item(19299),
+            new Item(19302),
+            new Item(19305) // dragon
+            // animal
+            // masks
+            , new Item(ItemIdentifiers.BLOOD_DYE),
+            new Item(ItemIdentifiers.THIRDAGE_DYE),
+            new Item(ItemIdentifiers.SHADOW_DYE),
+            new Item(ItemIdentifiers.BARROWS_DYE)};
+
+    private static final Item[] ULTRA_ELITE_RARE_REWARDS = {
+            new Item(ItemIdentifiers.BLOOD_DYE),
+            new Item(ItemIdentifiers.THIRDAGE_DYE),
+            new Item(ItemIdentifiers.SHADOW_DYE),
+            new Item(ItemIdentifiers.BARROWS_DYE)
+    }; //Custom ultra rare list
+
 
     private Clue currentClue;
     private Clue[] currentClues;// unused, old code
-
     private transient int cluePhase;
     private transient Player player;
     private transient List<Item> pieces;
 
     public TreasureTrailsManager() {
+    }
+
+    private static int[] createMix() {
+        int[] mix = new int[25];
+        for (int i = 0; i < mix.length; i++) {
+            mix[i] = i - 1;
+        }
+        shuffle(mix);
+        // http://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html
+        int inversions = 0;
+        for (int i = 0; i < mix.length - 1; i++) {
+            if (mix[i] == -1)
+                continue;
+            for (int j = i; j < mix.length; j++) {
+                if (mix[j] > mix[i])
+                    inversions++;
+            }
+        }
+        // If the grid width is odd, then the number of inversions in a solvable
+        // situation is even.
+        if ((inversions & 1) != 0) {
+            return createMix(); // could just simply swap last 2 pieces but need
+            // to make sure they arn't blank
+        }
+        return mix;
+    }
+
+    private static void shuffle(int[] mix) {
+        for (int i = mix.length - 1; i > 0; i--) {
+            int index = Utils.random(i + 1);
+            int tmp = mix[index];
+            mix[index] = mix[i];
+            mix[i] = tmp;
+        }
     }
 
     public void setPlayer(Player player) {
@@ -370,8 +968,8 @@ public class TreasureTrailsManager implements Serializable {
                     return;
                 if (slot == Equipment.SLOT_RING && item.getId() == 20922) {
                     if (!player.getEquipment().containsOneItem(
-                            new int[]{2552, 2554, 2556, 2558, 2560, 2562,
-                                    2564, 2566})) {
+                            2552, 2554, 2556, 2558, 2560, 2562,
+                            2564, 2566)) {
                         return;
                     }
                 } else if (requestedItem.getId() != item.getId()) {
@@ -626,13 +1224,10 @@ public class TreasureTrailsManager implements Serializable {
         if (level == EASY) {
             rewards = new Item[3 + Utils.random(2)];
             rewards[0] = OVERALL_REWARDS[Utils.random(OVERALL_REWARDS.length)];
-            rewards[1] = EASY_NORMAL_REWARDS[Utils
-                    .random(EASY_NORMAL_REWARDS.length)];
-            rewards[2] = EASY_NORMAL_REWARDS[Utils
-                    .random(EASY_NORMAL_REWARDS.length)];
+            rewards[1] = EASY_NORMAL_REWARDS[Utils.random(EASY_NORMAL_REWARDS.length)];
+            rewards[2] = EASY_NORMAL_REWARDS[Utils.random(EASY_NORMAL_REWARDS.length)];
             if (rewards.length == 4)
-                rewards[3] = EASY_RARE_REWARDS[Utils
-                        .random(EASY_RARE_REWARDS.length)];
+                rewards[3] = EASY_RARE_REWARDS[Utils.random(EASY_RARE_REWARDS.length)];
         } else if (level == MEDIUM) {
             rewards = new Item[5 + Utils.random(2)];
             rewards[0] = OVERALL_REWARDS[Utils.random(OVERALL_REWARDS.length)];
@@ -663,26 +1258,21 @@ public class TreasureTrailsManager implements Serializable {
                 rewards[7] = HARD_RARE_REWARDS[Utils
                         .random(HARD_RARE_REWARDS.length)];
         } else { // elite
-            rewards = new Item[8 + Utils.random(3)];
+            rewards = new Item[8 + Utils.random(4)];
             rewards[0] = OVERALL_REWARDS[Utils.random(OVERALL_REWARDS.length)];
-            rewards[1] = ELITE_NORMAL_REWARDS[Utils
-                    .random(ELITE_NORMAL_REWARDS.length)];
-            rewards[2] = ELITE_NORMAL_REWARDS[Utils
-                    .random(ELITE_NORMAL_REWARDS.length)];
+            rewards[1] = ELITE_NORMAL_REWARDS[Utils.random(ELITE_NORMAL_REWARDS.length)];
+            rewards[2] = ELITE_NORMAL_REWARDS[Utils.random(ELITE_NORMAL_REWARDS.length)];
             rewards[3] = OVERALL_REWARDS[Utils.random(OVERALL_REWARDS.length)];
-            rewards[4] = HARD_NORMAL_REWARDS[Utils
-                    .random(HARD_NORMAL_REWARDS.length)];
+            rewards[4] = HARD_NORMAL_REWARDS[Utils.random(HARD_NORMAL_REWARDS.length)];
             rewards[5] = OVERALL_REWARDS[Utils.random(OVERALL_REWARDS.length)];
-            rewards[6] = ELITE_NORMAL_REWARDS[Utils
-                    .random(ELITE_NORMAL_REWARDS.length)];
-            rewards[7] = HARD_NORMAL_REWARDS[Utils
-                    .random(HARD_NORMAL_REWARDS.length)];
+            rewards[6] = ELITE_NORMAL_REWARDS[Utils.random(ELITE_NORMAL_REWARDS.length)];
+            rewards[7] = HARD_NORMAL_REWARDS[Utils.random(HARD_NORMAL_REWARDS.length)];
             if (rewards.length >= 9)
-                rewards[8] = HARD_RARE_REWARDS[Utils
-                        .random(HARD_RARE_REWARDS.length)];
-            if (rewards.length == 10)
-                rewards[9] = ELITE_RARE_REWARDS[Utils
-                        .random(ELITE_RARE_REWARDS.length)];
+                rewards[8] = HARD_RARE_REWARDS[Utils.random(HARD_RARE_REWARDS.length)];
+            if (rewards.length >= 10)
+                rewards[9] = ELITE_RARE_REWARDS[Utils.random(ELITE_RARE_REWARDS.length)];
+            if (rewards.length == 11)
+                rewards[10] = ULTRA_ELITE_RARE_REWARDS[Utils.random(ULTRA_ELITE_RARE_REWARDS.length)];
         }
         int count = 0;
         for (Item reward : rewards)
@@ -752,63 +1342,7 @@ public class TreasureTrailsManager implements Serializable {
         return new int[]{degreeY, minY, dirY, degreeX, minX, dirX};
     }
 
-    private static int[] createMix() {
-        int[] mix = new int[25];
-        for (int i = 0; i < mix.length; i++) {
-            mix[i] = i - 1;
-        }
-        shuffle(mix);
-        // http://www.cs.bham.ac.uk/~mdr/teaching/modules04/java2/TilesSolvability.html
-        int inversions = 0;
-        for (int i = 0; i < mix.length - 1; i++) {
-            if (mix[i] == -1)
-                continue;
-            for (int j = i; j < mix.length; j++) {
-                if (mix[j] > mix[i])
-                    inversions++;
-            }
-        }
-        // If the grid width is odd, then the number of inversions in a solvable
-        // situation is even.
-        if ((inversions & 1) != 0) {
-            return createMix(); // could just simply swap last 2 pieces but need
-            // to make sure they arn't blank
-        }
-        return mix;
-    }
-
-    private static void shuffle(int[] mix) {
-        for (int i = mix.length - 1; i > 0; i--) {
-            int index = Utils.random(i + 1);
-            int tmp = mix[index];
-            mix[index] = mix[i];
-            mix[i] = tmp;
-        }
-    }
-
-    private static final int COORDINATE = 0, EMOTE = 1, MAP = 2, SIMPLE = 3,
-            ANAGRAM = 5, UNUSED = -1;
-    private static final int TILE = 0, OBJECT = 1, NPC = 2;
-    private static final int NORTH = 0, SOUTH = 1, WEST = 2, EAST = 3;
-
-    public static final String[] UGIS_QUOTES = new String[]{
-            "I saw bo once, he gave me pokemon.",
-            "Once, I was a poor man, but then I found a party hat.",
-            "There were three goblins in a bar, which one left first?",
-            "Would you like to buy a pewter spoon?",
-            "In the end, only the three-legged survive.",
-            "I heard that the tall man fears only strong winds.",
-            "In Canifis the men are known for eating much spam.",
-            "I am the egg man, are you one of the egg men?",
-            "The sudden appearance of a deaf squirrel is most puzzling, Comrade.",
-            "I believe that it is very rainy in Varrock.",
-            "The slowest of fishermen catch the swiftest of fish.",
-            "It is quite easy being green.",
-            "Don't forget to find the jade monkey.",};
-
-    public static final String UGI_BADREQS = "I do not believe we have any business, Comrade";
-
-    private static enum ClueDetails {
+    private enum ClueDetails {
         SIMPLE_A_1(EASY, SIMPLE, OBJECT, 34585,
                 "A crate found in the tower of a church is your next location."), SIMPLE_D_1(
                 MEDIUM,
@@ -1315,11 +1849,14 @@ public class TreasureTrailsManager implements Serializable {
                 "Beware of double agents!", "Equip an iron square shield,",
                 "blue dragonhide vambraces,", "and an iron pickaxe.");
 
-        private int level, type, idType, id;
-        private Object[] parameters;
+        private final int level;
+        private final int type;
+        private final int idType;
+        private final int id;
+        private final Object[] parameters;
 
-        private ClueDetails(int level, int type, int idType, int id,
-                            Object... parameters) {
+        ClueDetails(int level, int type, int idType, int id,
+                    Object... parameters) {
             this.level = level;
             this.type = type;
             this.idType = idType;
@@ -1327,560 +1864,6 @@ public class TreasureTrailsManager implements Serializable {
             this.parameters = parameters;
         }
     }
-
-    private static final Item[] OVERALL_REWARDS = {
-            new Item(995, 20000) // coins
-            ,
-            new Item(3827),
-            new Item(3828),
-            new Item(3829),
-            new Item(3830) // saradomin
-            // pages
-            ,
-            new Item(3831),
-            new Item(3832),
-            new Item(3833),
-            new Item(3834) // zamorak
-            // pages
-            ,
-            new Item(3835),
-            new Item(3836),
-            new Item(3837),
-            new Item(3838) // guthix
-            // pages
-            ,
-            new Item(19600),
-            new Item(19601),
-            new Item(19602),
-            new Item(19603) // bandos
-            // pages
-            ,
-            new Item(19604),
-            new Item(19605),
-            new Item(19606),
-            new Item(19607) // armadyl
-            // pages
-            ,
-            new Item(19608),
-            new Item(19609),
-            new Item(19610),
-            new Item(19611) // ancient
-            // pages
-            ,
-            new Item(10476, 20) // purple sweets
-            , new Item(556, 100),
-            new Item(554, 100),
-            new Item(557, 100),
-            new Item(563, 100) // runes
-            ,
-            new Item(1381),
-            new Item(1383),
-            new Item(1385),
-            new Item(1386) // elemental
-            // staffs
-            , new Item(1675), new Item(1677),
-            new Item(1679),
-            new Item(1681),
-            new Item(1683) // craftable
-            // amulets
-            ,
-            new Item(18757) // court summon
-            ,
-            new Item(19467, 20) // biscuits
-            , new Item(19475), new Item(19476), new Item(19477),
-            new Item(19478), new Item(19479), new Item(19480) // teleport
-            // scrolls
-            , new Item(19152, 20), new Item(19157, 20), new Item(19162, 20) // god
-            // arrows
-            , new Item(19622), new Item(19621, 20) // meerkat pouches and fetch
-            // casket scroll
-            , new Item(10280), new Item(10282), new Item(10284) // composite
-            // bows
-
-    };
-
-    private static final Item[] EASY_NORMAL_REWARDS = {
-            // black weapons
-            new Item(869, 100), new Item(1217), new Item(1283), new Item(1297),
-            new Item(1313), new Item(1327),
-            new Item(1341),
-            new Item(1361),
-            new Item(1367),
-            new Item(1426)
-            // black armor
-            , new Item(1077), new Item(1089), new Item(1107), new Item(1125),
-            new Item(1151), new Item(1165), new Item(1179),
-            new Item(1195),
-            new Item(4821, 100) // black nails
-            ,
-            new Item(8779, 100) // oak planks
-            , new Item(849),
-            new Item(857) // willow + yew shortbow
-            , new Item(1440),
-            new Item(1442) // talismans
-            ,
-            new Item(333),
-            new Item(329) // trout + salmon
-            ,
-            new Item(1169) // coif
-            // leather armor
-            , new Item(1167), new Item(1059), new Item(1061), new Item(1063),
-            new Item(1095), new Item(1129), new Item(1131), new Item(1269) // steel
-            // pickaxe
-    };
-
-    private static final Item[] EASY_RARE_REWARDS = {
-            new Item(2583),
-            new Item(2585),
-            new Item(2587),
-            new Item(2589),
-            new Item(3472) // Trimmed black armour
-            ,
-            new Item(2591),
-            new Item(2593),
-            new Item(2595),
-            new Item(2597),
-            new Item(3473) // Gold-trimmed black armour
-            ,
-            new Item(2633),
-            new Item(2635),
-            new Item(2637) // berets
-            ,
-            new Item(2631) // Highwayman mask
-            ,
-            new Item(7388),
-            new Item(7392),
-            new Item(7396) // Trimmed wizard robes
-            ,
-            new Item(7386),
-            new Item(7390),
-            new Item(7394) // Gold-trimmed wizard robes
-            ,
-            new Item(7364),
-            new Item(7368) // Trimmed studded leather armour
-            ,
-            new Item(7362),
-            new Item(7366) // Gold-trimmed studded leather armour
-            // Black heraldic armour (h1 to h5)
-            , new Item(7332), new Item(7338), new Item(7344), new Item(7350),
-            new Item(7356), new Item(10306), new Item(10308), new Item(10310),
-            new Item(10312), new Item(10314), new Item(19167), new Item(19169),
-            new Item(19171), new Item(19188), new Item(19190),
-            new Item(19192),
-            new Item(19209),
-            new Item(19211),
-            new Item(19213),
-            new Item(19230),
-            new Item(19232),
-            new Item(19234),
-            new Item(19251),
-            new Item(19253),
-            new Item(19255),
-            new Item(10404),
-            new Item(10406),
-            new Item(10424),
-            new Item(10426) // Red elegant costumes
-            ,
-            new Item(10408),
-            new Item(10410),
-            new Item(10428),
-            new Item(10430) // Blue elegant costumes
-            ,
-            new Item(10412),
-            new Item(10414),
-            new Item(10432),
-            new Item(10434) // Green elegant costumes
-            ,
-            new Item(10316),
-            new Item(10318),
-            new Item(10320),
-            new Item(10322),
-            new Item(10324) // Bob the cat shirts
-            ,
-            new Item(10392),
-            new Item(10394),
-            new Item(10396),
-            new Item(10398) // Emote enchanters
-            ,
-            new Item(10366) // aumlet of magic t
-            // Vestment robes (Saradomin, Guthix, Zamorak)
-            , new Item(10458), new Item(10460), new Item(10462),
-            new Item(10464), new Item(10466), new Item(10468), new Item(13081),
-            new Item(13083, 500) // Black crossbow + bolts
-            , new Item(13095) // black cane
-            , new Item(13105) // spiked helmet
-    };
-
-    private static final Item[] MEDIUM_NORMAL_REWARDS = {
-            // adamant weapons
-            new Item(803, 100), new Item(810, 100), new Item(829, 100),
-            new Item(867, 100), new Item(1211), new Item(1245), new Item(1271),
-            new Item(1287), new Item(1301), new Item(1317), new Item(1331),
-            new Item(1345), new Item(1357),
-            new Item(1371),
-            new Item(1430),
-            new Item(9183)
-            // adamant armour
-            , new Item(1073), new Item(1091), new Item(1111), new Item(1123),
-            new Item(1145), new Item(1161), new Item(1183), new Item(1199),
-            new Item(4823, 100) // adamantite
-            // nails
-            , new Item(1393), new Item(1395), new Item(1397), new Item(1399) // battlestaves
-            , new Item(1065), new Item(1099), new Item(1135) // green dhide
-            , new Item(857), new Item(8781, 100) // teak planks
-            , new Item(373), new Item(379) // swordfish + lobs
-    };
-
-    private static final Item[] MEDIUM_RARE_REWARDS = {
-            new Item(2599),
-            new Item(2601),
-            new Item(2603),
-            new Item(2605),
-            new Item(3474) // Trimmed adamant armour
-            ,
-            new Item(2607),
-            new Item(2609),
-            new Item(2611),
-            new Item(2613),
-            new Item(3475) // Gold-trimmed adamant armour
-            ,
-            new Item(2577),
-            new Item(2579) // ranger + wizard boots
-            ,
-            new Item(2645),
-            new Item(2647),
-            new Item(2649) // headbands
-            ,
-            new Item(7319),
-            new Item(7321),
-            new Item(7323),
-            new Item(7325),
-            new Item(7327) // boaters
-            ,
-            new Item(7372),
-            new Item(7380) // Trimmed green dragonhide armour
-            ,
-            new Item(7370),
-            new Item(7378) // gold-trimmed green dragonhide armour
-            // Adamant heraldic armour (h1 to h5)
-            , new Item(7334), new Item(7340), new Item(7346), new Item(7352),
-            new Item(7358), new Item(10296), new Item(10298), new Item(10300),
-            new Item(10302), new Item(10304), new Item(19173), new Item(19175),
-            new Item(19177), new Item(19194), new Item(19196), new Item(19198),
-            new Item(19215),
-            new Item(19217),
-            new Item(19219),
-            new Item(19236),
-            new Item(19238),
-            new Item(19240),
-            new Item(10400),
-            new Item(10402),
-            new Item(10420),
-            new Item(10422) // black + white elegant costume
-            ,
-            new Item(10416),
-            new Item(10418),
-            new Item(10436),
-            new Item(10438) // purple
-            // elegant
-            // costume
-            ,
-            new Item(10364) // amulet of str t
-            , new Item(10446),
-            new Item(10448),
-            new Item(10450) // gods cloack
-            ,
-            new Item(10452),
-            new Item(10454),
-            new Item(10456) // gods mitre
-            ,
-            new Item(19380),
-            new Item(19382),
-            new Item(19384),
-            new Item(19386),
-            new Item(19388),
-            new Item(19390) // Vestment
-            // robes
-            // (Armadyl,
-            // Bandos,
-            // Zaros,
-            // Ancient)
-            , new Item(13107), new Item(13109), new Item(13111),
-            new Item(13113), new Item(13115) // animal
-            // masks
-            , new Item(13097) // adamant cane
-            , new Item(13103) // pith helmet
-
-    };
-
-    private static final Item[] HARD_NORMAL_REWARDS = {
-            // rune weapons
-            new Item(805, 100), new Item(811, 100), new Item(830, 100),
-            new Item(868, 100), new Item(1213), new Item(1247), new Item(1275),
-            new Item(1289), new Item(1303), new Item(1319),
-            new Item(1333),
-            new Item(1347),
-            new Item(1359),
-            new Item(1373),
-            new Item(1432),
-            new Item(9185)
-            // rune armor
-            , new Item(1079), new Item(1093), new Item(1113), new Item(1127),
-            new Item(1147),
-            new Item(1163),
-            new Item(1185),
-            new Item(1201),
-            new Item(4824, 100) // rune nails
-            ,
-            new Item(9144, 100) // runite bolts
-            , new Item(2491), new Item(2497), new Item(2503), new Item(839),
-            new Item(845), new Item(847), new Item(851), new Item(855),
-            new Item(859) // longbows
-            , new Item(8783, 100) // mahogany planks
-            , new Item(379), new Item(385)};
-
-    private static final Item[] HARD_RARE_REWARDS = {
-            new Item(2623),
-            new Item(2625),
-            new Item(2627),
-            new Item(2629),
-            new Item(3477) // Trimmed rune armour
-            ,
-            new Item(2615),
-            new Item(2617),
-            new Item(2619),
-            new Item(2621),
-            new Item(3476) // Gold-trimmed rune armour
-            ,
-            new Item(2661),
-            new Item(2663),
-            new Item(2665),
-            new Item(2667),
-            new Item(3479) // Saradomin rune armour
-            ,
-            new Item(2669),
-            new Item(2671),
-            new Item(2673),
-            new Item(2675),
-            new Item(3480) // Guthix rune armour
-            ,
-            new Item(2653),
-            new Item(2655),
-            new Item(2657),
-            new Item(2659),
-            new Item(3478) // Zamorak rune armour
-            ,
-            new Item(3481),
-            new Item(3483),
-            new Item(3485),
-            new Item(3486),
-            new Item(3488) // Gilded armour
-            ,
-            new Item(7376),
-            new Item(7384) // Trimmed blue dragonhide armour
-            ,
-            new Item(7374),
-            new Item(7382) // Gold-trimmed blue dragonhide armour
-            ,
-            new Item(8950),
-            new Item(2581) // pirate + robin hood hat
-            ,
-            new Item(7398),
-            new Item(7399),
-            new Item(73400) // enchanted robes
-            ,
-            new Item(2639),
-            new Item(2641),
-            new Item(2643) // cavalier
-            // Rune heraldic armour (h1 to h5)
-            ,
-            new Item(7336),
-            new Item(7342),
-            new Item(7348),
-            new Item(7354),
-            new Item(7360),
-            new Item(10286),
-            new Item(10288),
-            new Item(10290),
-            new Item(10292),
-            new Item(10294),
-            new Item(19179),
-            new Item(19182),
-            new Item(19185),
-            new Item(19200),
-            new Item(19203),
-            new Item(19206),
-            new Item(19221),
-            new Item(19224),
-            new Item(19227),
-            new Item(19242),
-            new Item(19245),
-            new Item(19248),
-            new Item(19263),
-            new Item(19266),
-            new Item(19269),
-            new Item(10346),
-            new Item(10348),
-            new Item(10350),
-            new Item(10352) // Third-age
-            // warrior
-            // armour
-            ,
-            new Item(10338),
-            new Item(10340),
-            new Item(10342),
-            new Item(10344) // Third-age
-            // mage
-            // armour
-            ,
-            new Item(10330),
-            new Item(10332),
-            new Item(10334),
-            new Item(10336) // Third-age
-            // ranger
-            // armour
-            ,
-            new Item(10362) // amulet of glory (t)
-            ,
-            new Item(10470),
-            new Item(10472),
-            new Item(10474) // god stoles
-            ,
-            new Item(10440),
-            new Item(10442),
-            new Item(10444) // god croziers
-            ,
-            new Item(19368),
-            new Item(19370),
-            new Item(19372) // god cloaks
-            ,
-            new Item(19374),
-            new Item(19378),
-            new Item(19372) // god mitres
-            ,
-            new Item(10368),
-            new Item(10370),
-            new Item(10372),
-            new Item(10374) // Blessed
-            // d'hide
-            // armour
-            // (Zamorak)
-            ,
-            new Item(10384),
-            new Item(10386),
-            new Item(10388),
-            new Item(10390) // Blessed
-            // d'hide
-            // armour
-            // (Saradomin)
-            ,
-            new Item(10376),
-            new Item(10378),
-            new Item(10380),
-            new Item(10382) // Blessed
-            // d'hide
-            // armour
-            // (Guthix)
-            , new Item(19272), new Item(19275), new Item(19278),
-            new Item(19281), new Item(19284), new Item(19287) // animal
-            // masks
-            , new Item(13099) // Rune cane
-            , new Item(13101) // Top hat
-    };
-
-    private static final Item[] ELITE_NORMAL_REWARDS = {new Item(1305),
-            new Item(1215) // dragon
-            // equipment
-            , new Item(5315), new Item(5316) // highend seeds
-            , new Item(3024), new Item(2452) // antifire
-            , new Item(989) // crystal key
-            , new Item(9194, 100) // onyx bolt type
-            , new Item(1704) // amulet of glory
-    };
-
-    private static final Item[] ELITE_RARE_REWARDS = {
-            new Item(19308),
-            new Item(19311),
-            new Item(19314),
-            new Item(19317),
-            new Item(19320) // Third-age druidic equipment
-            ,
-            new Item(19413),
-            new Item(19416),
-            new Item(19419),
-            new Item(19422),
-            new Item(19425) // Armadyl rune armour
-            ,
-            new Item(19398),
-            new Item(19401),
-            new Item(19404),
-            new Item(19407),
-            new Item(19410) // Ancient rune armour
-            ,
-            new Item(19428),
-            new Item(19431),
-            new Item(19434),
-            new Item(19437),
-            new Item(19440) // Bandos rune armour
-            ,
-            new Item(19443),
-            new Item(19445),
-            new Item(19447),
-            new Item(19449) // ancient d'hide
-            ,
-            new Item(19451),
-            new Item(19453),
-            new Item(19455),
-            new Item(19457) // bandos d'hide
-            ,
-            new Item(19459),
-            new Item(19461),
-            new Item(19463),
-            new Item(19465) // armadyl d'hide
-            ,
-            new Item(19392),
-            new Item(19394),
-            new Item(19396) // god stoles
-            ,
-            new Item(19362),
-            new Item(19364),
-            new Item(19366) // god croziers
-            // kits
-            ,
-            new Item(25312),
-            new Item(25314),
-            new Item(19333),
-            new Item(19346),
-            new Item(19348),
-            new Item(19350),
-            new Item(19352),
-            new Item(19354),
-            new Item(19356),
-            new Item(19358),
-            new Item(19360),
-            new Item(19143),
-            new Item(19146),
-            new Item(19149) // god bows
-            ,
-            new Item(19323),
-            new Item(19325),
-            new Item(19327),
-            new Item(19329),
-            new Item(19331) // animal
-            // staves
-            ,
-            new Item(19290),
-            new Item(19293),
-            new Item(19296),
-            new Item(19299),
-            new Item(19302),
-            new Item(19305) // dragon
-            // animal
-            // masks
-            , new Item(ItemIdentifiers.BLOOD_DYE),
-            new Item(ItemIdentifiers.THIRDAGE_DYE),
-            new Item(ItemIdentifiers.SHADOW_DYE),
-            new Item(ItemIdentifiers.BARROWS_DYE)};
 
     // I do not beleive we have buisness comrad.
 
@@ -1890,7 +1873,7 @@ public class TreasureTrailsManager implements Serializable {
 
         private ClueDetails details;
         private int count;
-        private int dificulty;
+        private final int dificulty;
 
         public Clue(ClueDetails details, int count, int dificulty) {
             this.details = details;
